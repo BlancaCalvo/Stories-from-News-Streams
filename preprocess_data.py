@@ -24,7 +24,6 @@ def preprocess(data):
 def tfidf_creation(data):
     print('Creating TF-IDF matrix...')
     vec = TfidfVectorizer(stop_words=stopwords.words('spanish'), tokenizer=word_tokenize)
-    print(data.stems)
     vec_matrix = vec.fit_transform(data.stems)
     pca = TruncatedSVD(n_components=100)
     vec_matrix_pca = pca.fit_transform(vec_matrix)

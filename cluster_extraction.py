@@ -1,16 +1,17 @@
 
 import pandas as pd
 import argparse
+import os
+
 from preprocess_data import preprocess, tfidf_creation
 from clustering import elbow_plot, clustering_kmeans, clusters_plot, cluster_names, silhouette_evaluation, evaluation_questions
-import os
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('input', type=str, help='input file path')
-    parser.add_argument('--week', type=str, help='week to cluster, e.g. 2018-02 would be the first week of 2018')
+    parser.add_argument('--week', type=str, help='week to cluster, e.g. 2018-02 would be the third week of 2018')
     parser.add_argument('--reproduce', type=bool, default=False, help='Set to True if trying to reproduce results')
     parser.add_argument('--plots', type=bool, default=False, help='Set to True if wanting to generate the plots')
     parser.add_argument('--manual_eval', type=bool, default=True, help='Set to True to perform manual evaluation')
@@ -36,6 +37,9 @@ if __name__ == "__main__":
     central_titles, central_keywords, central_articles = cluster_names(centroids, vec_matrix_pca, data)
     data = data.astype('object')
     data = data.merge(central_titles, on='labels', how='left')
+    if not os.path.exists('Dirty'):
+        os.mkdir('Dirty')
+    data.to_csv('Dirty/Clusters' + args.week + '.csv', index=False)
 
     if args.manual_eval:
         print('Time to clean the data. Manual evaluation:')
