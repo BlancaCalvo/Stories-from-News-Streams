@@ -91,7 +91,7 @@ def silhouette_evaluation(vec_matrix_pca, labels, week):
     plt.xlim([-0.1, 1])
     plt.xlabel('Silhouette coefficient values')
     plt.ylabel('Cluster labels')
-    plt.title('Silhouette plot for the various clusters', y=1.02);
+    #plt.title('Silhouette plot for the various clusters', y=1.02);
     plt.savefig(silhouette_plot_filename)
     plt.show()
 

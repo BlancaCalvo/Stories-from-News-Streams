@@ -3,3 +3,4 @@ nltk
 sklearn
 matplotlib
 gensim
+seaborn
