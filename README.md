@@ -2,6 +2,8 @@
 
 Source code for the paper "Finding Narratives in News Flows: The Temporal Dimensions of News Stories". A dataset for this corpus can be scraped using the code in https://github.com/BlancaCalvo/Spanish-Newspapers-Scraper 
 
+Find here an interactive app to inspect the data used in the paper: https://blancacalvofigueras.shinyapps.io/shiny/  
+
 ## Requirements
 
 Run the command:
