@@ -54,26 +54,19 @@ def compare_to_week(data, tf_idf, corpus, dictionary, list_of_labels, threshold,
     return new
 
 def merge_weeks(origin, new, finalized_df):
-    print(origin.head())
-    print(new.head())
     new = pd.concat([origin, new], ignore_index=True, sort=False)
-    print(new.head())
     names = new['labels'].unique()
     #if first_time:
     #    numbers = range(0, len(names))
     #    first_time = False
     #else:
-    print(finalized_df)
-    numbers = range(int(max(finalized_df['final_labels'])) + 1, int(max(finalized_df['final_labels'])) + len(names) + 1)
+    numbers = range(int(max(finalized_df['labels'])) + 1, int(max(finalized_df['labels'])) + len(names) + 1)
     standing_labels = pd.DataFrame({'labels': names, 'final_labels': numbers})
-    print(standing_labels)
-
     forward = new.merge(standing_labels, on='labels')
 
-    #forward.drop('labels', axis=1)
-    #forward.rename(columns={'final_labels': 'labels'}, inplace=True)
+    forward = forward.drop('labels', axis=1)
+    forward.rename(columns={'final_labels': 'labels'}, inplace=True)
 
-    print(forward.head())
     return forward
 
 def compare_and_merge_weeks(origin, compare_to, similarity_threshold, min_articles, finalized_df):
@@ -86,23 +79,20 @@ def compare_and_merge_weeks(origin, compare_to, similarity_threshold, min_articl
     return forward, new
 
 def check_clusters_and_save(finalized_df, forward, merging_thrshold):
-    for i in finalized_df['final_labels'].unique():
-        previous = finalized_df[finalized_df['final_labels'] == i]
-        for d in forward['final_labels'].unique():
-            now = forward[forward['final_labels'] == d]
+    for i in finalized_df['labels'].unique():
+        previous = finalized_df[finalized_df['labels'] == i]
+        for d in forward['labels'].unique():
+            now = forward[forward['labels'] == d]
             s1 = pd.merge(previous, now, how='inner', on=['DIRECCION'])
-            value = len(s1) / len(
-                now)  # calculates the percentage of articles in the new clusters that are already in a previous cluster
-            print(value)
-            value2 = len(s1) / len(
-                previous)  # calucaltes the percentage of articles in the new clusters that are already in a previous cluster
-            print(value2)
+            value = len(s1) / len(now)  # calculates the percentage of articles in the new clusters that are already in a previous cluster
+            value2 = len(s1) / len(previous)  # calucaltes the percentage of articles in the new clusters that are already in a previous cluster
             if value > merging_thrshold:  # if it's bigger than 0.4 then the articles in the new cluster get the label of the previous cluster, they become the same
-                print('1.Label ' + str(d) + ' becomes label ' + str(i))
-                forward['final_labels'] = forward['final_labels'].replace(d, i)
+                print('Label {0} becomes label {1} for a similarity of {2}.'.format(d,i,value))
+                forward['labels'] = forward['labels'].replace(d, i)
             elif value2 > merging_thrshold:
-                print('2.Label ' + str(i) + ' becomes label ' + str(d))
-                finalized_df['final_labels'] = finalized_df['final_labels'].replace(i, d)
+                print('Label {0} becomes label {1} for a similarity of {2}.'.format(i,d,value2))
+                finalized_df['labels'] = finalized_df['labels'].replace(i, d)
 
     finalized_df = pd.concat([finalized_df, forward])
+    finalized_df.to_csv('corpus.csv', index=False)
     return finalized_df

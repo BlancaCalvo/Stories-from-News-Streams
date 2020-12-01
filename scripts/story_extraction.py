@@ -2,6 +2,7 @@
 import pandas as pd
 import argparse
 import os
+import numpy as np
 
 from utils import compare_and_merge_weeks, check_clusters_and_save
 
@@ -15,8 +16,8 @@ def week_loader(week, year):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--year', type=str, default='2018', help='Year to bridge')
-    parser.add_argument('--similarity_threshold', type=int, default=0.35, help='Threshold of similarity between articles')
-    parser.add_argument('--merging_threshold', type=int, default=0.33, help='Threshold of proportion of articles between clusters')
+    parser.add_argument('--similarity_threshold', type=float, default=0.35, help='Threshold of similarity between articles')
+    parser.add_argument('--merging_threshold', type=float, default=0.33, help='Threshold of proportion of articles between clusters')
     parser.add_argument('--min_articles', type=int, default=10, help='Minimum articles per week to keep looking')
     parser.add_argument('--start_week', type=int, default=-1, help='Week to start from')
     args = parser.parse_args()
@@ -26,12 +27,14 @@ if __name__ == "__main__":
     first_time = True
     direction = 'forward'
     done_here = False
-    finalized_df = pd.DataFrame(index=[1], columns=['final_labels'])
+    finalized_df = pd.DataFrame(index=[1], columns=['FECHA', 'label_name', 'TITULO', 'DIRECCION', 'ID', 'TEXTO', 'MEDIO','PALABRAS_CLAVE', 'date_scrap', 'week', 'stems', 'labels', 'similarity'])#, dtype=['string','string','string','string','string','string','string','string','string','string','string','float', 'int'])
     finalized_df = finalized_df.fillna(0)  # with 0s rather than NaNs
+    finalized_df = finalized_df.astype(str)
+    finalized_df = finalized_df.astype({"labels": int, "similarity": np.float64})
 
     while not done_here:
         if first_time and direction == 'forward':
-            print('option 1')
+            #print('option 1')
             first_time = False
             week_start += 1
             starting = week_loader(week_start, args.year)
@@ -45,27 +48,27 @@ if __name__ == "__main__":
                 done_here=True
                 break
         elif not first_time and direction == 'forward':
-            print('option 2')
+            #print('option 2')
             origin = forward
             week_look += 1
             following = week_loader(week_look, args.year)
         elif first_time and direction == 'backward' and week_look > 0:
-            print('option 3')
+            #print('option 3')
             first_time = False
             origin = forward
             week_look = week_start-1
             following = week_loader(week_look, args.year)
         elif not first_time and direction == 'backward' and week_look > 0:
-            print('option 4')
+            #print('option 4')
             origin = forward
             week_look -= 1
             following = week_loader(week_look, args.year)
         else:
-            print('option 5')
+            #print('option 5')
             first_time = True
             direction = 'forward'
-            print('Finished week {0}. Going to next week!'.format(week_start))
             finalized_df = check_clusters_and_save(finalized_df, forward, args.merging_threshold)
+            print('Finished week {0}. Going to next week!'.format(week_start))
             continue
         if os.path.exists("Dirty/Clusters" + following + ".csv"):
             compare_to = pd.read_csv("Dirty/Clusters" + following + ".csv")
@@ -77,8 +80,8 @@ if __name__ == "__main__":
             else:
                 direction = 'forward'
                 first_time = True
-                print('Finished week {0}. Going to next week!'.format(week_start))
                 finalized_df = check_clusters_and_save(finalized_df, forward, args.merging_threshold)
+                print('Finished week {0}. Going to next week!'.format(week_start))
             continue
 
         print('Comparing week {0} and week {1}'.format(week_start, week_look))
@@ -92,12 +95,9 @@ if __name__ == "__main__":
             else:
                 direction = 'forward'
                 first_time = True
-                print('Finished week {0}. Going to next week!'.format(week_start))
                 finalized_df = check_clusters_and_save(finalized_df, forward, args.merging_threshold)
+                print('Finished week {0}. Going to next week!'.format(week_start))
 
-    print(finalized_df.groupby(['final_labels'])['DIRECCION'].size())
+
+    print(finalized_df.groupby(['labels'])['DIRECCION'].size())
     print(finalized_df.head())
-
-    finalized_df = finalized_df.drop_duplicates(subset=["DIRECCION", "final_labels"])
-
-    finalized_df.to_csv('b-final_links3.csv', index=False)
