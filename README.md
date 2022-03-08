@@ -1,6 +1,6 @@
 # Stories-from-News-Streams
 
-Source code for the article "Finding Narratives in News Flows: The Temporal Dimensions of News Stories". A dataset similar to the one in the paper can be scraped using the code in https://github.com/BlancaCalvo/Spanish-Newspapers-Scraper 
+Source code for the article [Finding Narratives in News Flows: The Temporal Dimensions of News Stories](http://www.digitalhumanities.org/dhq/vol/15/4/000582/000582.html). A dataset similar to the one in the paper can be scraped using the code in https://github.com/BlancaCalvo/Spanish-Newspapers-Scraper 
 
 Find here an interactive app to inspect the data used in the paper: https://blancacalvofigueras.shinyapps.io/shiny/  
 
